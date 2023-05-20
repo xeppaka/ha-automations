@@ -1,5 +1,5 @@
 blueprint:
-  name: Philips Dimmer Remote
+  name: Philips Hue Dimmer Remote
   description: 'Control lights with a Philips Hue Dimmer Switch.
 
 
@@ -22,12 +22,12 @@ blueprint:
   input:
     remote:
       name: Philips Hue Dimmer Switch
-      description: Pick either RWL020 (US) or RWL021 (EU)
+      description: Pick either RWL020 (US) or RWL021 (EU) or RWL022 (EU)
       selector:
         device:
           integration: zha
-          manufacturer: Philips
-          model: RWL020
+          manufacturer: Signify Netherlands B.V.
+          model: RWL022
     single_light:
       name: Single Press Light
       description: The light(s) to control with single press
@@ -90,7 +90,7 @@ blueprint:
       selector:
         entity:
           domain: input_text
-  source_url: https://github.com/apollo1220/blueprints/blob/main/philips_zigbee_remote.yaml
+  source_url: https://github.com/xeppaka/ha-automations/blob/main/philips_zigbee_dimmer.yaml
 mode: restart
 max_exceeded: silent
 variables:
