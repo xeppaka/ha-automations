@@ -90,14 +90,11 @@ action:
         sequence:
           - service: homeassistant.toggle
             target: !input "first_light"
-          - choose:
-              - conditions: "{{ current_light != none }}"
-                sequence:
-                  - service: input_text.set_value
-                    target:
-                      entity_id: !input "current_light"
-                    data:
-                      value: first_light
+          - service: input_text.set_value
+            target:
+              entity_id: !input "current_light"
+            data:
+              value: first_light
       - conditions:
           - "{{ command == 'recall' }}"
           - "{{ second_light != none }}"
