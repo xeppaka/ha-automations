@@ -1,0 +1,96 @@
+alias: Philips Tap Dial Left
+description: ""
+triggers:
+  - event_type: zha_event
+    event_data:
+      device_id: dd60bbba89e796d993c3f58eac340005
+    trigger: event
+actions:
+  - variables:
+      command: "{{ trigger.event.data.command }}"
+      args: "{{ trigger.event.data.args }}"
+      params: "{{ trigger.event.data.params }}"
+      scene: "{{ trigger.event.data.params.scene_id }}"
+      step_mode: "{{ trigger.event.data.params.step_mode }}"
+      step_size: "{{ trigger.event.data.params.step_size }}"
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'recall' }}"
+          - condition: template
+            value_template: "{{ scene == 1 }}"
+        sequence:
+          - target:
+              entity_id: light.kitchen_inside_light
+            action: light.toggle
+            data: {}
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'recall' }}"
+          - condition: template
+            value_template: "{{ scene == 0 }}"
+        sequence:
+          - target:
+              entity_id:
+                - light.kitchen_center_light
+                - light.kitchen_window_light
+            action: light.toggle
+            data: {}
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'recall' }}"
+          - condition: template
+            value_template: "{{ scene == 4 }}"
+        sequence:
+          - target:
+              entity_id:
+                - light.kitchen_center_light
+                - light.kitchen_window_light
+                - light.kitchen_inside_light
+                - light.kitchen_outside_light
+            action: light.turn_off
+            data: {}
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'recall' }}"
+          - condition: template
+            value_template: "{{ scene == 5 }}"
+        sequence:
+          - target:
+              entity_id: light.kitchen_outside_light
+            action: light.toggle
+            data: {}
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'step_with_on_off' }}"
+          - condition: template
+            value_template: "{{ step_mode == 'StepMode.Up' }}"
+        sequence:
+          - target:
+              entity_id: >-
+                {{ [ 'light.kitchen_window_light', 'light.kitchen_center_light',
+                'light.kitchen_outside_light', 'light.kitchen_inside_light' ] |
+                select('is_state', 'on') | list }}
+            data:
+              brightness_step_pct: "{{ step_size * dim_scale }}"
+              transition: 1
+            action: light.turn_on
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'step_with_on_off' }}"
+          - condition: template
+            value_template: "{{ step_mode == 'StepMode.Down' }}"
+        sequence:
+          - target:
+              entity_id: >-
+                {{ [ 'light.kitchen_window_light', 'light.kitchen_center_light',
+                'light.kitchen_outside_light', 'light.kitchen_inside_light' ] |
+                select('is_state', 'on') | list }}
+            data:
+              brightness_step_pct: "{{ -step_size * dim_scale }}"
+              transition: 1
+            action: light.turn_on
+mode: single
+max_exceeded: silent
+variables:
+  dim_scale: 1

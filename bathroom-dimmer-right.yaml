@@ -1,0 +1,21 @@
+alias: Bathroom Dimmer Right
+description: ""
+triggers:
+  - event_type: zha_event
+    event_data:
+      device_id: e6ff938e2ca01bbf598cccca281acc11
+    trigger: event
+actions:
+  - variables:
+      command: "{{ trigger.event.data.command }}"
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'on_press' }}"
+        sequence:
+          - target:
+              entity_id: light.vent_switcher
+            data: {}
+            action: light.toggle
+mode: single
+max_exceeded: silent

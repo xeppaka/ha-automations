@@ -1,0 +1,98 @@
+alias: Philips Tap Dial Right
+description: ""
+triggers:
+  - event_type: zha_event
+    event_data:
+      device_id: ee0af929ebbcdbca9e65c9da130638da
+    trigger: event
+actions:
+  - variables:
+      command: "{{ trigger.event.data.command }}"
+      args: "{{ trigger.event.data.args }}"
+      params: "{{ trigger.event.data.params }}"
+      scene: "{{ trigger.event.data.params.scene_id }}"
+      step_mode: "{{ trigger.event.data.params.step_mode }}"
+      step_size: "{{ trigger.event.data.params.step_size }}"
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'recall' }}"
+          - condition: template
+            value_template: "{{ scene == 1 }}"
+        sequence:
+          - target:
+              entity_id: light.above_you_light
+            action: light.toggle
+            data: {}
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'recall' }}"
+          - condition: template
+            value_template: "{{ scene == 0 }}"
+        sequence:
+          - target:
+              entity_id:
+                - light.tv_iris
+            action: light.toggle
+            data: {}
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'recall' }}"
+          - condition: template
+            value_template: "{{ scene == 4 }}"
+        sequence:
+          - target:
+              entity_id:
+                - light.chill_out_light
+                - light.tv_iris
+                - light.above_you_light
+            action: light.turn_off
+            data: {}
+          - target:
+              entity_id:
+                - switch.socket_1
+                - switch.socket_2
+            action: switch.turn_off
+            data: {}
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'recall' }}"
+          - condition: template
+            value_template: "{{ scene == 5 }}"
+        sequence:
+          - target:
+              entity_id: light.chill_out_light
+            action: light.toggle
+            data: {}
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'step_with_on_off' }}"
+          - condition: template
+            value_template: "{{ step_mode == 'StepMode.Up' }}"
+        sequence:
+          - target:
+              entity_id: >-
+                {{ [ 'light.above_you_light', 'light.chill_out_light',
+                'light.tv_iris' ] | select('is_state', 'on') | list }}
+            data:
+              brightness_step_pct: "{{ step_size * dim_scale }}"
+              transition: 1
+            action: light.turn_on
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'step_with_on_off' }}"
+          - condition: template
+            value_template: "{{ step_mode == 'StepMode.Down' }}"
+        sequence:
+          - target:
+              entity_id: >-
+                {{ [ 'light.above_you_light', 'light.chill_out_light',
+                'light.tv_iris' ] | select('is_state', 'on') | list }}
+            data:
+              brightness_step_pct: "{{ -step_size * dim_scale }}"
+              transition: 1
+            action: light.turn_on
+mode: single
+max_exceeded: silent
+variables:
+  dim_scale: 1

@@ -1,0 +1,119 @@
+alias: Bedroom Dimmer 2
+description: ""
+triggers:
+  - event_type: zha_event
+    event_data:
+      device_id: b09e190dc7b85828e02e96f5e25baefb
+    trigger: event
+actions:
+  - variables:
+      command: "{{ trigger.event.data.command }}"
+      step_mode: "{{ trigger.event.data.params.step_mode }}"
+      step_size: "{{ trigger.event.data.params.step_size }}"
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'on_press' }}"
+        sequence:
+          - target:
+              entity_id: light.bed_light
+            data: {}
+            action: light.toggle
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'off_press' }}"
+        sequence:
+          - target:
+              entity_id: light.bedroom_light
+            data: {}
+            action: light.toggle
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'up_press' }}"
+        sequence:
+          - target:
+              entity_id: >-
+                {{ [ 'light.bedroom_light', 'light.bed_light' ] |
+                select('is_state', 'on') | list }}
+            data:
+              brightness_step_pct: 10
+              transition: 1
+            action: light.turn_on
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'down_press' }}"
+        sequence:
+          - target:
+              entity_id: >-
+                {{ [ 'light.bedroom_light', 'light.bed_light' ] |
+                select('is_state', 'on') | list }}
+            data:
+              brightness_step_pct: -10
+              transition: 1
+            action: light.turn_on
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'step' }}"
+          - condition: template
+            value_template: "{{ step_mode == 'StepMode.Up' }}"
+          - condition: template
+            value_template: "{{ step_size == 63 }}"
+        sequence:
+          - target:
+              entity_id: >-
+                {{ [ 'light.bedroom_light', 'light.bed_light' ] |
+                select('is_state', 'on') | list }}
+            data:
+              brightness_step_pct: 25
+              transition: 1
+            action: light.turn_on
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'step' }}"
+          - condition: template
+            value_template: "{{ step_mode == 'StepMode.Down' }}"
+          - condition: template
+            value_template: "{{ step_size == 63 }}"
+        sequence:
+          - target:
+              entity_id: >-
+                {{ [ 'light.bedroom_light', 'light.bed_light' ] |
+                select('is_state', 'on') | list }}
+            data:
+              brightness_step_pct: -25
+              transition: 1
+            action: light.turn_on
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'step' }}"
+          - condition: template
+            value_template: "{{ step_mode == 'StepMode.Up' }}"
+          - condition: template
+            value_template: "{{ step_size == 30 }}"
+        sequence:
+          - target:
+              entity_id: >-
+                {{ [ 'light.bedroom_light', 'light.bed_light' ] |
+                select('is_state', 'on') | list }}
+            data:
+              brightness_step_pct: 10
+              transition: 1
+            action: light.turn_on
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'step' }}"
+          - condition: template
+            value_template: "{{ step_mode == 'StepMode.Down' }}"
+          - condition: template
+            value_template: "{{ step_size == 30 }}"
+        sequence:
+          - target:
+              entity_id: >-
+                {{ [ 'light.bedroom_light', 'light.bed_light' ] |
+                select('is_state', 'on') | list }}
+            data:
+              brightness_step_pct: -10
+              transition: 1
+            action: light.turn_on
+mode: single
+max_exceeded: silent
