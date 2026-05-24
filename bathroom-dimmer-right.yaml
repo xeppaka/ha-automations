@@ -8,14 +8,106 @@ triggers:
 actions:
   - variables:
       command: "{{ trigger.event.data.command }}"
+      step_mode: "{{ trigger.event.data.params.step_mode }}"
+      step_size: "{{ trigger.event.data.params.step_size }}"
   - choose:
       - conditions:
           - condition: template
             value_template: "{{ command == 'on_press' }}"
+          - condition: state
+            entity_id: light.bathroom_light
+            state: "off"
         sequence:
-          - target:
+          - action: light.turn_on
+            target:
+              entity_id: light.bathroom_light
+            data: {}
+          - action: input_boolean.turn_on
+            target:
+              entity_id: input_boolean.bathroom_light_on_manual
+            data: {}
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'off_press' }}"
+        sequence:
+          - action: light.toggle
+            target:
               entity_id: light.vent_switcher
             data: {}
-            action: light.toggle
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'on_press' }}"
+          - condition: state
+            entity_id: light.bathroom_light
+            state: "on"
+        sequence:
+          - action: light.turn_off
+            target:
+              entity_id: light.bathroom_light
+            data: {}
+          - action: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.bathroom_light_on_manual
+            data: {}
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'up_press' }}"
+          - condition: state
+            entity_id: light.bathroom_light
+            state: "on"
+        sequence:
+          - action: light.turn_on
+            target:
+              entity_id: light.bathroom_light
+            data:
+              brightness_step_pct: 10
+              transition: 1
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'down_press' }}"
+          - condition: state
+            entity_id: light.bathroom_light
+            state: "on"
+        sequence:
+          - action: light.turn_on
+            target:
+              entity_id: light.bathroom_light
+            data:
+              brightness_step_pct: -10
+              transition: 1
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'step' }}"
+          - condition: template
+            value_template: "{{ step_mode == 'StepMode.Up' }}"
+          - condition: template
+            value_template: "{{ step_size == 63 }}"
+          - condition: state
+            entity_id: light.bathroom_light
+            state: "on"
+        sequence:
+          - action: light.turn_on
+            target:
+              entity_id: light.bathroom_light
+            data:
+              brightness_step_pct: 25
+              transition: 1
+      - conditions:
+          - condition: template
+            value_template: "{{ command == 'step' }}"
+          - condition: template
+            value_template: "{{ step_mode == 'StepMode.Down' }}"
+          - condition: template
+            value_template: "{{ step_size == 63 }}"
+          - condition: state
+            entity_id: light.bathroom_light
+            state: "on"
+        sequence:
+          - action: light.turn_on
+            target:
+              entity_id: light.bathroom_light
+            data:
+              brightness_step_pct: -25
+              transition: 1
 mode: single
 max_exceeded: silent

@@ -5,33 +5,37 @@ triggers:
     entity_id:
       - binary_sensor.bathroom_occupancy
 actions:
-  - choose:
-      - conditions:
-          - condition: template
-            value_template: "{{ trigger.from_state.state == 'off' }}"
-          - condition: template
-            value_template: "{{ trigger.to_state.state == 'on' }}"
-          - condition: template
-            value_template: "{{ is_state('light.bathroom_light', 'off') }}"
-          - condition: time
-            after: "07:00:00"
-            before: "23:00:00"
-        sequence:
-          - target:
-              entity_id: light.bathroom_light
-            data: {}
-            action: light.turn_on
-          - wait_for_trigger:
-              - trigger: state
-                entity_id: binary_sensor.bathroom_occupancy
-                to: "off"
-                for:
-                  hours: 0
-                  minutes: 0
-                  seconds: 120
-          - target:
-              entity_id: light.bathroom_light
-            data: {}
-            action: light.turn_off
+  - condition: and
+    conditions:
+      - condition: template
+        value_template: "{{ trigger.to_state.state == 'on' }}"
+      - condition: template
+        value_template: "{{ is_state('light.bathroom_light', 'off') }}"
+      - condition: time
+        after: "07:00:00"
+        before: "23:00:00"
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.bathroom_light_on_manual
+    data: {}
+  - action: light.turn_on
+    target:
+      entity_id: light.bathroom_light
+    data: {}
+  - wait_for_trigger:
+      - trigger: state
+        entity_id: binary_sensor.bathroom_occupancy
+        to: "off"
+        for:
+          hours: 0
+          minutes: 0
+          seconds: 120
+  - condition: state
+    entity_id: input_boolean.bathroom_light_on_manual
+    state: "off"
+  - action: light.turn_off
+    target:
+      entity_id: light.bathroom_light
+    data: {}
 mode: single
 max_exceeded: silent
